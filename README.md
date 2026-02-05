@@ -1,5 +1,4 @@
 # Eurostat Lakehouse (Bronze → Silver → Gold) + Airflow + Databricks SQL (Free)
-
 ## Overview
 This repository implements an end-to-end Data Engineering project using Eurostat Structural Business Statistics (SBS) datasets.
 The pipeline follows a Lakehouse-style architecture (Bronze → Silver → Gold), orchestrated with Apache Airflow locally and optionally published to **Databricks SQL (Free)** for querying and dashboards.
