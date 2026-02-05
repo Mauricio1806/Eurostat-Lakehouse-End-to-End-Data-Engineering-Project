@@ -10,8 +10,6 @@ The pipeline follows a **Lakehouse-style architecture** (Bronze → Silver → G
 - Orchestrate everything with Airflow (DAG + task dependencies)
 - Keep it runnable locally, and optionally mirror outputs into Databricks SQL
 
----
-
 ## Architecture
 
 ### Data Flow
@@ -45,7 +43,6 @@ Creates analytical marts:
 3) `gold_yoy` — year-over-year growth per geo + indicator
 Stores in `data/gold/` (Parquet + CSV)
 
----
 
 ## Repository Structure
 
@@ -84,7 +81,6 @@ Python packages:
 - deltalake (optional for Delta writes locally)
 - apache-airflow (only if running without Docker)
 
----
 
 ## How to Run (Local)
 
@@ -119,7 +115,6 @@ Outputs:
 - `data/silver/*.parquet`
 - `data/gold/*.parquet` and `data/gold/*.csv`
 
----
 
 ## Orchestration with Airflow (Local)
 
@@ -143,7 +138,6 @@ Run:
 - `airflow webserver`
 - `airflow scheduler`
 
----
 
 ## Databricks (Free) Integration — Optional
 Databricks Free often restricts compute/clusters. This project supports two practical modes:
@@ -164,7 +158,6 @@ This still demonstrates strong DE skills:
 - quality checks
 - reproducibility
 
----
 
 ## Data Quality Checks
 The pipeline includes sanity checks:
@@ -173,13 +166,11 @@ The pipeline includes sanity checks:
 - schema validation (expected columns)
 - numeric conversion success rates
 
----
 
 ## Data Source
 Eurostat — Structural Business Statistics (SBS)
 https://ec.europa.eu/eurostat
 
----
 
 ## Author
 Mauricio Esquivel
