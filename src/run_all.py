@@ -20,3 +20,4 @@ for s in steps:
         raise SystemExit(f"Step failed: {s}")
 
 print("\nPipeline finished OK.")
+
