@@ -1,0 +1,24 @@
+﻿# python
+.venv/
+__pycache__/
+*.pyc
+
+# airflow
+logs/
+airflow/logs/
+
+# outputs / data layers
+data-raw/
+data-bronze/
+data-silver/
+data-gold/
+data-0bronze/
+outputs-checks/
+*.parquet
+
+# vscode
+.vscode/
+
+# OS
+Thumbs.db
+.DS_Store
