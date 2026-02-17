@@ -1,4 +1,4 @@
-# 🚀 Eurostat Lakehouse — Bronze → Silver → Gold  
+# 🚀 Eurostat Lakehouse 
 **Airflow + AWS S3 + Production-Style Data Engineering**
 
 End-to-end Data Engineering project using **Eurostat Structural Business Statistics (SBS)**.
