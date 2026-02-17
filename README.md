@@ -1,177 +1,326 @@
-# Eurostat Lakehouse (Bronze → Silver → Gold) + Airflow + Databricks SQL (Free)
-## Overview
-This repository implements an end-to-end Data Engineering project using Eurostat Structural Business Statistics (SBS) datasets.
-The pipeline follows a Lakehouse-style architecture (Bronze → Silver → Gold), orchestrated with Apache Airflow locally and optionally published to **Databricks SQL (Free)** for querying and dashboards.
+Eurostat Lakehouse on AWS
 
-**Key goals**
-- Build a reproducible pipeline with clear layers (Bronze/Silver/Gold)
-- Handle real-world messy Eurostat files (TSV, flags, wide-year columns)
-- Orchestrate everything with Airflow (DAG + task dependencies)
-- Keep it runnable locally, and optionally mirror outputs into Databricks SQL
+Bronze → Silver → Gold | Airflow Orchestration | S3 Publishing | Production-Style Data Engineering
 
-## Architecture
+Overview
 
-### Data Flow
-Raw Eurostat TSV (local)
-   ↓
-🥉 Bronze (Parquet, minimal changes + metadata)
-   ↓
-🥈 Silver (normalized long format + cleaned values)
-   ↓
-🥇 Gold (data marts: rankings, time series, YoY)
-   ↓
-(Optional) Publish to Databricks SQL (Free) as tables or uploaded query-ready outputs
+This repository implements a production-style Data Engineering project using Eurostat Structural Business Statistics (SBS) datasets.
 
-### Layers
-**Bronze**
-- Reads TSV exactly as downloaded
-- Adds metadata: `source_file`, `ingested_at`
-- Stores in `data/bronze/` as Parquet
+The pipeline follows a Lakehouse architecture pattern (Bronze → Silver → Gold), orchestrated with Apache Airflow locally, and publishes curated outputs to AWS S3.
 
-**Silver**
-- Splits dimensions from Eurostat: `freq,nace_r2,indic_sbs,geo`
-- Converts wide years (2021, 2022, 2023...) → long format (`year`, `value_raw`)
-- Cleans Eurostat flags (examples: `:`, `e`, `b`, `p`)
-- Produces consistent schema and types
-- Stores in `data/silver/` as Parquet
+This project demonstrates:
 
-**Gold**
-Creates analytical marts:
-1) `gold_top_countries` — top N countries by indicator/year
-2) `gold_timeseries` — time series by geo + indicator
-3) `gold_yoy` — year-over-year growth per geo + indicator
-Stores in `data/gold/` (Parquet + CSV)
+End-to-end data pipeline design
+
+Layered lakehouse modeling
+
+Airflow DAG orchestration
+
+Data quality validation
+
+AWS S3 integration
+
+Reproducible local-to-cloud workflow
+
+Git-based version control
+
+The goal is to simulate a real-world analytics engineering workflow using public economic data.
+
+Architecture
+High-Level Flow
+Eurostat TSV (Raw)
+        ↓
+🥉 Bronze Layer (Parquet, minimal transformation)
+        ↓
+🥈 Silver Layer (Normalized + Cleaned + Typed)
+        ↓
+🥇 Gold Layer (Analytical marts + KPIs)
+        ↓
+📊 HTML Analytical Report
+        ↓
+☁ AWS S3 (Curated publishing)
+
+Lakehouse Layers
+🥉 Bronze Layer
+
+Reads Eurostat TSV exactly as downloaded
+
+Preserves raw structure
+
+Adds ingestion metadata:
+
+source_file
+
+ingested_at
+
+Converts to Parquet
+
+Stored in:
+
+data-bronze/
 
 
-## Repository Structure
+Minimal transformation, schema preserved.
 
+🥈 Silver Layer
+
+Splits Eurostat composite dimension column:
+
+freq,nace_r2,indic_sbs,geo
+
+
+Converts wide year columns:
+
+2005, 2006, 2007 ...
+
+
+→ into normalized format:
+
+year | value_raw
+
+
+Cleans Eurostat flags:
+
+:
+
+e
+
+b
+
+p
+
+Casts numeric fields
+
+Produces consistent schema
+
+Stored in:
+
+data-silver/
+
+🥇 Gold Layer
+
+Analytical marts designed for reporting and BI consumption.
+
+Includes:
+
+gold_country_indicator_year.parquet
+
+gold_structural_metrics.parquet
+
+gold_yoy_growth.parquet
+
+Metrics include:
+
+Country rankings
+
+Year-over-Year growth
+
+CAGR
+
+Top movers
+
+Market leaders by indicator
+
+Stored in:
+
+data-gold/
+
+Airflow Orchestration
+
+The pipeline is orchestrated through a DAG:
+
+airflow/dags/eurostat_lakehouse_dag.py
+
+
+Task flow:
+
+download_raw
+    ↓
+bronze_ingest
+    ↓
+silver_transform
+    ↓
+gold_analytics
+    ↓
+quality_checks
+    ↓
+generate_html_report
+
+
+The DAG ensures:
+
+Dependency control
+
+Reproducibility
+
+Modular execution
+
+Clear separation of concerns
+
+HTML Analytical Report
+
+After Gold layer generation, the pipeline produces:
+
+reports/out/gold_report.html
+
+
+This report includes:
+
+Executive snapshot
+
+Top 10 countries
+
+YoY growth charts
+
+Rank movers
+
+CAGR performance
+
+Structural business metrics
+
+The report simulates a business-ready analytics deliverable.
+
+AWS Integration (S3 Publishing)
+
+This project publishes curated outputs to AWS S3.
+
+Example structure inside S3:
+
+s3://mauricio-eurostat-lakehouse-prod/
+    ├── bronze/
+    ├── silver/
+    ├── gold/
+    └── reports/
+        ├── gold_report.html
+        └── assets/
+
+
+Publishing is done via AWS CLI:
+
+aws s3 cp reports/out/gold_report.html s3://bucket-name/reports/gold_report.html
+aws s3 sync reports/out/assets s3://bucket-name/reports/assets
+
+
+This demonstrates:
+
+Cloud integration
+
+Storage layer separation
+
+Production-style artifact publishing
+
+Lakehouse to object storage workflow
+
+Repository Structure
 eurostat-lakehouse/
-├─ data/
-│  ├─ raw/              # Eurostat TSV files (not committed)
-│  ├─ bronze/           # Bronze Parquet
-│  ├─ silver/           # Silver Parquet
-│  └─ gold/             # Gold marts (Parquet + CSV)
-├─ src/
-│  ├─ bronze_ingest.py
-│  ├─ silver_transform.py
-│  ├─ gold_marts.py
-│  └─ utils.py
-├─ airflow/
-│  ├─ dags/
-│  │  └─ eurostat_lakehouse_dag.py
-│  └─ docker-compose.yml
-├─ outputs/
-│  └─ checks/           # quality checks outputs
-├─ requirements.txt
-├─ .gitignore
-└─ README.md
+│
+├── airflow/
+│   ├── dags/
+│   └── logs/
+│
+├── data-raw/
+├── data-bronze/
+├── data-silver/
+├── data-gold/
+│
+├── reports/
+│   ├── templates/
+│   └── out/
+│
+├── src/
+│   ├── 00_download_raw.py
+│   ├── 01_extract_raw.py
+│   ├── 02_bronze_ingest.py
+│   ├── 03_silver_transform.py
+│   ├── 04_gold_analytics.py
+│   ├── 05_quality_checks.py
+│   └── utils.py
+│
+├── docker-compose.yml
+├── requirements.txt
+├── .gitignore
+└── README.md
 
----
+How to Run (Local)
+1. Create Virtual Environment
 
-## Requirements
-- Python 3.10+ (recommended 3.10/3.11)
-- VS Code
-- Docker Desktop (recommended for Airflow via docker-compose)
+Windows PowerShell:
 
-Python packages:
-- pandas
-- pyarrow
-- duckdb (optional for fast local SQL checks)
-- deltalake (optional for Delta writes locally)
-- apache-airflow (only if running without Docker)
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
 
+2. Run Pipeline (Manual)
+python src/00_download_raw.py
+python src/02_bronze_ingest.py
+python src/03_silver_transform.py
+python src/04_gold_analytics.py
+python src/05_quality_checks.py
 
-## How to Run (Local)
+3. Run via Airflow (Docker)
 
-### Step 1 — Place raw datasets
-Put your Eurostat TSV files into:
-`data/raw/`
+Inside airflow/:
 
-Example:
-- estat_sbs_ovw_act.tsv
-- estat_sbs_ovw_iep.tsv
-- estat_sbs_sc_ovw.tsv
-- estat_sbs_ovw_smc.tsv
-
-### Step 2 — Install dependencies
-Create venv and install:
-- Windows PowerShell:
-  - `python -m venv .venv`
-  - `.\.venv\Scripts\Activate.ps1`
-  - `python -m pip install --upgrade pip`
-  - `pip install -r requirements.txt`
-
-### Step 3 — Run pipeline scripts
-- Bronze:
-  - `python src/bronze_ingest.py`
-- Silver:
-  - `python src/silver_transform.py`
-- Gold:
-  - `python src/gold_marts.py`
-
-Outputs:
-- `data/bronze/*.parquet`
-- `data/silver/*.parquet`
-- `data/gold/*.parquet` and `data/gold/*.csv`
+docker compose up -d
 
 
-## Orchestration with Airflow (Local)
+Open:
 
-### Option A — Recommended (Docker Compose)
-1) Go to `airflow/`
-2) Run:
-   - `docker compose up -d`
-3) Open Airflow UI:
-   - http://localhost:8080
-4) Enable the DAG:
-   - `eurostat_lakehouse_dag`
-
-### Option B — Native Airflow (no Docker)
-Install:
-- `pip install apache-airflow`
-Initialize:
-- `airflow db init`
-Create admin:
-- `airflow users create ...`
-Run:
-- `airflow webserver`
-- `airflow scheduler`
+http://localhost:8080
 
 
-## Databricks (Free) Integration — Optional
-Databricks Free often restricts compute/clusters. This project supports two practical modes:
+Enable:
 
-### Mode 1 — Use Databricks SQL to query outputs
-- Export Gold marts as CSV
-- Upload them into Databricks SQL (Add data → Upload file)
-- Create tables/views in Databricks SQL editor
+eurostat_lakehouse_dag
 
-### Mode 2 — Keep pipeline local, publish results
-- Run pipeline locally
-- Upload only final curated outputs (Gold) to Databricks SQL for showcasing
+Data Quality Checks
 
-This still demonstrates strong DE skills:
-- pipeline design
-- orchestration
-- data modeling
-- quality checks
-- reproducibility
+Includes:
 
+Row count validation per layer
 
-## Data Quality Checks
-The pipeline includes sanity checks:
-- row counts by layer
-- null rates
-- schema validation (expected columns)
-- numeric conversion success rates
+Schema validation
 
+Null rate checks
 
-## Data Source
-Eurostat — Structural Business Statistics (SBS)
+Numeric conversion checks
+
+Layer consistency validation
+
+Outputs saved in:
+
+outputs-checks/
+
+Technical Skills Demonstrated
+
+Lakehouse modeling
+
+Data normalization
+
+ETL modularization
+
+Airflow orchestration
+
+Data quality engineering
+
+Cloud storage integration (AWS S3)
+
+CLI automation
+
+Analytical data mart design
+
+Reproducible local development workflow
+
+Git versioning
+
+Data Source
+
+Eurostat – Structural Business Statistics (SBS)
 https://ec.europa.eu/eurostat
 
+Author
 
-## Author
 Mauricio Esquivel
-Data Engineer / Analytics Engineer
-Focus: Databricks, lakehouse pipelines, orchestration, cloud analytics
+Data Engineer | Analytics Engineer
+Focus: Lakehouse Architectures, Airflow, AWS, Databricks-style pipelines, Cloud Analytics
