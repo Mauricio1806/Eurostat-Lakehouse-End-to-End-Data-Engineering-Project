@@ -231,9 +231,6 @@ Below are sample sections from the production-style analytics report:
 ## Structural Metrics Overview
 ![Structural Metrics](docs/report_structural_metrics.png)
 
-## Top Countries by Indicator
-![Top Countries](docs/report_top_countries.png)
-
 ## YoY Growth & Rank Movers
 ![YoY Growth](docs/report_yoy_growth.png)
 
