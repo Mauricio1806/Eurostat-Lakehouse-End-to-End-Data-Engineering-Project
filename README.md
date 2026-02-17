@@ -214,6 +214,85 @@ aws s3 sync reports/out/assets s3://<your-bucket>/reports/assets --region us-eas
 aws s3 ls s3://<your-bucket>/reports --region us-east-2
 ```
 
+# 🌐 Live Analytics Report (AWS S3 Deployment)
+
+Production-style HTML report deployed to AWS S3:
+
+👉 (http://mauricio-eurostat-lakehouse-prod.s3-website.us-east-2.amazonaws.com/reports/latest/gold_report.html)
+
+The report includes dynamically generated analytics from the Gold layer, including rankings, YoY growth, CAGR metrics, structural indicators, and data quality validation summaries.
+
+---
+
+# 📊 Report Preview
+
+Below are sample sections from the production-style analytics report:
+
+## Structural Metrics Overview
+![Structural Metrics](docs/report_structural_metrics.png)
+
+## Top Countries by Indicator
+![Top Countries](docs/report_top_countries.png)
+
+## YoY Growth & Rank Movers
+![YoY Growth](docs/report_yoy_growth.png)
+
+---
+
+# 🏭 Production Considerations
+
+This project was designed with production-readiness principles:
+
+- Layered Lakehouse architecture (Bronze → Silver → Gold)
+- Idempotent transformation logic
+- Explicit schema enforcement
+- Data quality validation before publishing
+- Deterministic ranking logic
+- Outlier clipping logic for visualization stability
+- Separation between computation and presentation layers
+- S3 publishing as deployment step
+
+Potential production upgrades:
+
+- CI/CD pipeline with GitHub Actions
+- IAM role-based S3 access
+- Cloud-native orchestration (AWS MWAA)
+- Delta Lake storage format
+- Daily scheduled pipeline execution
+- Infrastructure-as-Code (Terraform)
+
+---
+
+# ☁ Scalability & Cloud Readiness
+
+Although executed locally, the architecture is cloud-ready:
+
+- Parquet-based storage for scalable analytics
+- Modular transformation scripts
+- Airflow-based orchestration
+- S3-ready deployment
+- Structured analytical marts
+
+The pipeline can be migrated to:
+
+- AWS Glue
+- Amazon MWAA
+- Databricks
+- Azure Data Factory
+- Snowflake
+- BigQuery
+
+---
+
+# ⚡ Performance Notes
+
+- Parquet reduces I/O footprint
+- Vectorized Pandas transformations
+- Efficient YoY computation using grouped shifts
+- Controlled aggregation logic
+- Safe numeric casting with coercion handling
+- Memory-safe transformations for wide-to-long reshaping
+
 ---
 
 # ⚙ Running the Pipeline
