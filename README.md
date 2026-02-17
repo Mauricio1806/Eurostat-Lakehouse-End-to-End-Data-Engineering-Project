@@ -1,51 +1,55 @@
-Eurostat Lakehouse on AWS
+🇪🇺 Eurostat Lakehouse on AWS
+Bronze → Silver → Gold · Airflow Orchestration · AWS S3 Publishing · Production-Style Data Engineering
+📌 Overview
 
-Bronze → Silver → Gold | Airflow Orchestration | S3 Publishing | Production-Style Data Engineering
+This project implements a production-style end-to-end Data Engineering pipeline using Eurostat Structural Business Statistics (SBS).
 
-Overview
+It follows a Lakehouse architecture pattern (Bronze → Silver → Gold), orchestrated with Apache Airflow and integrated with AWS S3 for cloud publishing.
 
-This repository implements a production-style Data Engineering project using Eurostat Structural Business Statistics (SBS) datasets.
+The objective is to simulate a real-world analytics engineering workflow using public European economic data.
 
-The pipeline follows a Lakehouse architecture pattern (Bronze → Silver → Gold), orchestrated with Apache Airflow locally, and publishes curated outputs to AWS S3.
+🎯 What This Project Demonstrates
 
-This project demonstrates:
+Layered Lakehouse modeling
 
-End-to-end data pipeline design
-
-Layered lakehouse modeling
+ETL modular design
 
 Airflow DAG orchestration
 
-Data quality validation
+Data normalization & cleaning
 
-AWS S3 integration
+Analytical mart construction
 
-Reproducible local-to-cloud workflow
+HTML report generation
 
-Git-based version control
+AWS S3 cloud publishing
 
-The goal is to simulate a real-world analytics engineering workflow using public economic data.
+CLI automation
 
-Architecture
-High-Level Flow
+Reproducible local workflow
+
+Git-based versioning
+
+🏗 Architecture
+High-Level Data Flow
 Eurostat TSV (Raw)
         ↓
-🥉 Bronze Layer (Parquet, minimal transformation)
+🥉 Bronze (Parquet - raw preserved + metadata)
         ↓
-🥈 Silver Layer (Normalized + Cleaned + Typed)
+🥈 Silver (Normalized + Cleaned + Typed)
         ↓
-🥇 Gold Layer (Analytical marts + KPIs)
+🥇 Gold (Analytical Marts)
         ↓
-📊 HTML Analytical Report
+📊 HTML Business Report
         ↓
-☁ AWS S3 (Curated publishing)
+☁ AWS S3 (Curated Publishing Layer)
 
-Lakehouse Layers
+🧱 Lakehouse Layers
 🥉 Bronze Layer
 
-Reads Eurostat TSV exactly as downloaded
+Purpose: Preserve raw data with minimal transformation.
 
-Preserves raw structure
+Reads TSV exactly as downloaded
 
 Adds ingestion metadata:
 
@@ -55,31 +59,34 @@ ingested_at
 
 Converts to Parquet
 
+Schema preserved
+
 Stored in:
 
 data-bronze/
 
-
-Minimal transformation, schema preserved.
-
 🥈 Silver Layer
 
-Splits Eurostat composite dimension column:
+Purpose: Clean and normalize data for analytical readiness.
+
+Transformations:
+
+Split composite dimension column:
 
 freq,nace_r2,indic_sbs,geo
 
 
-Converts wide year columns:
+Convert wide year columns:
 
 2005, 2006, 2007 ...
 
 
-→ into normalized format:
+→ to normalized format:
 
 year | value_raw
 
 
-Cleans Eurostat flags:
+Clean Eurostat flags:
 
 :
 
@@ -89,9 +96,9 @@ b
 
 p
 
-Casts numeric fields
+Cast numeric fields
 
-Produces consistent schema
+Standardize schema
 
 Stored in:
 
@@ -99,17 +106,9 @@ data-silver/
 
 🥇 Gold Layer
 
-Analytical marts designed for reporting and BI consumption.
+Purpose: Create analytical marts for reporting & BI.
 
 Includes:
-
-gold_country_indicator_year.parquet
-
-gold_structural_metrics.parquet
-
-gold_yoy_growth.parquet
-
-Metrics include:
 
 Country rankings
 
@@ -119,20 +118,27 @@ CAGR
 
 Top movers
 
-Market leaders by indicator
+Indicator-level aggregation
+
+Main outputs:
+
+gold_country_indicator_year.parquet
+gold_structural_metrics.parquet
+gold_yoy_growth.parquet
+
 
 Stored in:
 
 data-gold/
 
-Airflow Orchestration
+🔁 Airflow Orchestration
 
-The pipeline is orchestrated through a DAG:
+DAG:
 
 airflow/dags/eurostat_lakehouse_dag.py
 
 
-Task flow:
+Pipeline execution order:
 
 download_raw
     ↓
@@ -147,28 +153,28 @@ quality_checks
 generate_html_report
 
 
-The DAG ensures:
+Ensures:
 
-Dependency control
+Controlled task dependencies
 
 Reproducibility
 
-Modular execution
+Clear modular separation
 
-Clear separation of concerns
+Production-style orchestration
 
-HTML Analytical Report
+📊 HTML Analytical Report
 
-After Gold layer generation, the pipeline produces:
+After Gold layer generation:
 
 reports/out/gold_report.html
 
 
-This report includes:
+Includes:
 
-Executive snapshot
+Executive summary
 
-Top 10 countries
+Market leaders
 
 YoY growth charts
 
@@ -178,40 +184,44 @@ CAGR performance
 
 Structural business metrics
 
-The report simulates a business-ready analytics deliverable.
+This simulates a business-facing analytics deliverable.
 
-AWS Integration (S3 Publishing)
+☁ AWS Integration (S3 Publishing)
 
-This project publishes curated outputs to AWS S3.
+The project publishes curated artifacts to AWS S3.
 
-Example structure inside S3:
+Example structure:
 
 s3://mauricio-eurostat-lakehouse-prod/
-    ├── bronze/
-    ├── silver/
-    ├── gold/
-    └── reports/
-        ├── gold_report.html
-        └── assets/
+│
+├── bronze/
+├── silver/
+├── gold/
+└── reports/
+    ├── gold_report.html
+    └── assets/
 
 
-Publishing is done via AWS CLI:
+Publishing commands:
 
-aws s3 cp reports/out/gold_report.html s3://bucket-name/reports/gold_report.html
-aws s3 sync reports/out/assets s3://bucket-name/reports/assets
+aws s3 cp reports/out/gold_report.html \
+    s3://mauricio-eurostat-lakehouse-prod/reports/gold_report.html
+
+aws s3 sync reports/out/assets \
+    s3://mauricio-eurostat-lakehouse-prod/reports/assets
 
 
 This demonstrates:
 
-Cloud integration
+Object storage integration
 
-Storage layer separation
+Curated artifact publishing
 
-Production-style artifact publishing
+Lakehouse-to-cloud workflow
 
-Lakehouse to object storage workflow
+Cloud-ready architecture
 
-Repository Structure
+📂 Repository Structure
 eurostat-lakehouse/
 │
 ├── airflow/
@@ -241,27 +251,22 @@ eurostat-lakehouse/
 ├── .gitignore
 └── README.md
 
-How to Run (Local)
-1. Create Virtual Environment
-
-Windows PowerShell:
-
+🚀 Running Locally
+1️⃣ Create Virtual Environment
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 
-2. Run Pipeline (Manual)
+2️⃣ Run Pipeline (Manual)
 python src/00_download_raw.py
 python src/02_bronze_ingest.py
 python src/03_silver_transform.py
 python src/04_gold_analytics.py
 python src/05_quality_checks.py
 
-3. Run via Airflow (Docker)
-
-Inside airflow/:
-
+3️⃣ Run with Airflow (Docker)
+cd airflow
 docker compose up -d
 
 
@@ -274,53 +279,62 @@ Enable:
 
 eurostat_lakehouse_dag
 
-Data Quality Checks
+✅ Data Quality Checks
 
-Includes:
+The pipeline validates:
 
-Row count validation per layer
+Row count consistency
 
 Schema validation
 
-Null rate checks
+Null rate analysis
 
-Numeric conversion checks
+Numeric conversion success
 
-Layer consistency validation
+Layer consistency
 
-Outputs saved in:
+Outputs stored in:
 
 outputs-checks/
 
-Technical Skills Demonstrated
+🛠 Technical Stack
 
-Lakehouse modeling
+Python
 
-Data normalization
+Pandas
 
-ETL modularization
+PyArrow
 
-Airflow orchestration
+Apache Airflow
 
-Data quality engineering
+Docker
 
-Cloud storage integration (AWS S3)
+AWS CLI
 
-CLI automation
+Amazon S3
 
-Analytical data mart design
+HTML reporting
 
-Reproducible local development workflow
+Lakehouse modeling pattern
 
-Git versioning
-
-Data Source
+📚 Data Source
 
 Eurostat – Structural Business Statistics (SBS)
 https://ec.europa.eu/eurostat
 
-Author
+👤 Author
 
 Mauricio Esquivel
 Data Engineer | Analytics Engineer
-Focus: Lakehouse Architectures, Airflow, AWS, Databricks-style pipelines, Cloud Analytics
+
+Focus Areas:
+
+Lakehouse Architectures
+
+Airflow Orchestration
+
+AWS & Cloud Storage
+
+Analytics Engineering
+
+Reproducible Data Pipelines
