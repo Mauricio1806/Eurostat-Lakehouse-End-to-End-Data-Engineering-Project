@@ -1,24 +1,26 @@
-﻿# python
+﻿# ===== Python / venv =====
 .venv/
 __pycache__/
 *.pyc
+.ipynb_checkpoints/
 
-# airflow
-logs/
-airflow/logs/
-
-# outputs / data layers
+# ===== Data layers (do NOT commit) =====
 data-raw/
 data-bronze/
 data-silver/
 data-gold/
-data-0bronze/
-outputs-checks/
-*.parquet
 
-# vscode
-.vscode/
+# ===== Airflow runtime =====
+airflow/logs/
+airflow/plugins/__pycache__/
 
-# OS
-Thumbs.db
+# ===== Generated HTML report artifacts (do NOT commit) =====
+reports/out/
+reports/**/assets/
+reports/**/*.png
+reports/**/*.jpg
+reports/**/*.jpeg
+
+# ===== OS =====
 .DS_Store
+Thumbs.db
