@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>{{ title }}</title>
+  <style>
+    :root{
+      --bg: #070b14;
+      --panel: rgba(255,255,255,0.06);
+      --panel2: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.10);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.65);
+      --muted2: rgba(255,255,255,0.52);
+    }
+    *{ box-sizing: border-box; }
+    body{
+      margin:0;
+      background: radial-gradient(1200px 600px at 20% -10%, rgba(100,140,255,0.15), transparent 60%),
+                  radial-gradient(900px 500px at 80% 0%, rgba(0,255,200,0.06), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", Helvetica;
+      line-height: 1.35;
+    }
+    .wrap{
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 22px 18px 40px;
+    }
+    header{
+      display:flex;
+      align-items:flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 8px 2px 14px;
+    }
+    h1{
+      margin:0;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+    .meta{
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      align-items: stretch;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.04));
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 14px 35px rgba(0,0,0,0.35);
+      overflow: hidden;
+    }
+    .card h2{
+      margin:0 0 10px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.90);
+      letter-spacing: 0.2px;
+    }
+    .muted{ color: var(--muted); font-size: 12px; }
+    .muted2{ color: var(--muted2); font-size: 12px; }
+    .kpis{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .kpi{
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .kpi .label{ color: var(--muted2); font-size: 11px; }
+    .kpi .val{ margin-top: 4px; font-size: 16px; font-weight: 800; color: rgba(255,255,255,0.95); }
+
+    .insights{
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .insight{
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .insight .t{ font-size: 12px; font-weight: 800; margin-bottom: 4px; }
+    .insight .p{ font-size: 12px; color: var(--muted); }
+
+    .chart{
+      margin-top: 10px;
+      background: rgba(255,255,255,0.92);
+      border-radius: 12px;
+      padding: 10px;
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+    .chart img{ width:100%; height:auto; display:block; }
+
+    table{
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow:hidden;
+    }
+    thead th{
+      text-align:left;
+      padding: 10px 10px;
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.80);
+      border-bottom: 1px solid var(--border);
+      font-weight: 800;
+      font-size: 11px;
+    }
+    tbody td{
+      padding: 9px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.88);
+    }
+    tbody tr:hover td{ background: rgba(255,255,255,0.03); }
+
+    .twoCol{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .bullet{
+      margin: 8px 0 0;
+      padding-left: 16px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .bullet li{ margin: 6px 0; }
+
+    .divider{
+      margin-top: 14px;
+      border-top: 1px solid rgba(255,255,255,0.10);
+      padding-top: 12px;
+    }
+
+    code{
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.80);
+    }
+
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+      .twoCol{ grid-template-columns: 1fr; }
+      header{ flex-direction: column; align-items:flex-start; }
+      .meta{ white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>{{ title }}</h1>
+        <div class="meta">Generated at {{ generated_at }} • Indicator: <b>{{ main_indicator }}</b></div>
+      </div>
+      <div class="meta">
+        Latest year (Value): <b>{{ year_top }}</b> • Latest year (YoY): <b>{{ year_yoy }}</b>
+      </div>
+    </header>
+
+    <div class="grid">
+
+      <!-- EXEC SUMMARY / COVERAGE / QUALITY -->
+      <div class="card">
+        <h2>Executive summary</h2>
+        <div class="muted">
+          This report is generated from curated Gold outputs (Parquet). It’s designed as a portfolio artifact:
+          <b>business-readable</b> insights with <b>engineering-grade</b> traceability and quality controls.
+        </div>
+
+        <div class="kpis">
+          <div class="kpi">
+            <div class="label">Gold rows (Value mart)</div>
+            <div class="val">{{ coverage.top_rows }}</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Gold rows (YoY mart)</div>
+            <div class="val">{{ coverage.yoy_rows }}</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Countries covered (Value)</div>
+            <div class="val">{{ coverage.top_countries }}</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Indicators covered (Value)</div>
+            <div class="val">{{ coverage.top_indicators }}</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Year range (Value)</div>
+            <div class="val">{{ coverage.top_year_min }} → {{ coverage.top_year_max }}</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Missing % (Value)</div>
+            <div class="val">{{ "%.2f"|format(coverage.top_missing_value_pct) }}%</div>
+          </div>
+        </div>
+
+        <div class="insights">
+          {% for it in insights %}
+          <div class="insight">
+            <div class="t">{{ it.title }}</div>
+            <div class="p">{{ it.text }}</div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="divider">
+          <h2>Method & data rules</h2>
+          <ul class="bullet">
+            <li><b>Indicator focus:</b> this report prioritizes one main indicator ({{ main_indicator }}) to avoid “dashboard soup”.</li>
+            <li><b>YoY sanity:</b> YoY excludes cases where previous-year value &lt; <b>{{ yoy_prev_threshold }}</b> (prevents infinite/inflated rates).</li>
+            <li><b>Rank delta:</b> compares ranking positions between <b>{{ rank_base_year }}</b> and <b>{{ year_top }}</b>.</li>
+            <li><b>CAGR:</b> summarizes long-run trajectory using first/last valid points in the series.</li>
+          </ul>
+        </div>
+
+        <div class="divider">
+          <h2>Quality checks (pipeline output)</h2>
+          {% if quality is none %}
+            <div class="muted">No <code>outputs-checks/quality_report.json</code> found. Run your quality step (05_quality_checks.py) to populate it.</div>
+          {% else %}
+            <div class="muted">
+              Quality report loaded from <code>outputs-checks/quality_report.json</code>.
+              Use this section to prove governance, not only visuals.
+            </div>
+            <ul class="bullet">
+              {% for k, v in quality.items() %}
+                <li><b>{{ k }}</b>: {{ v }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- TOP VALUE -->
+      <div class="card">
+        <h2>Top {{ top_n }} countries by value</h2>
+        <div class="muted">Source: <code>data-gold/gold_country_indicator_year.parquet</code> (filtered to year {{ year_top }})</div>
+
+        <div class="chart">
+          <img src="{{ chart_value }}" alt="Top countries by value"/>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 18%;">Geo</th>
+              <th style="width: 22%;">Indicator</th>
+              <th style="width: 12%;">Year</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in top_rows %}
+            <tr>
+              <td>{{ r.geo }}</td>
+              <td>{{ r.indic_sbs }}</td>
+              <td>{{ r.year }}</td>
+              <td>{{ r.value }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div class="divider">
+          <h2>Interpretation</h2>
+          <div class="muted">
+            This ranking answers “who is largest” for the selected indicator in the latest available year.
+            Use it for market sizing and positioning comparisons.
+          </div>
+        </div>
+      </div>
+
+      <!-- YOY -->
+      <div class="card">
+        <h2>Top {{ top_n }} YoY growth</h2>
+        <div class="muted">
+          Source: <code>data-gold/gold_yoy_growth.parquet</code> • filtered by prev ≥ {{ yoy_prev_threshold }}
+        </div>
+
+        <div class="chart">
+          <img src="{{ chart_yoy }}" alt="Top YoY growth"/>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 16%;">Geo</th>
+              <th style="width: 20%;">Indicator</th>
+              <th style="width: 12%;">Year</th>
+              <th style="width: 18%;">Value</th>
+              <th style="width: 18%;">Prev</th>
+              <th>YoY</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in yoy_rows %}
+            <tr>
+              <td>{{ r.geo }}</td>
+              <td>{{ r.indic_sbs }}</td>
+              <td>{{ r.year }}</td>
+              <td>{{ r.value }}</td>
+              <td>{{ r.prev }}</td>
+              <td>{{ r.yoy }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div class="divider">
+          <h2>Interpretation</h2>
+          <div class="muted">
+            YoY highlights short-term change. The sanity filter prevents misleading “infinite growth”
+            when last-year values are near zero.
+          </div>
+        </div>
+      </div>
+
+      <!-- RANK DELTA + CAGR -->
+      <div class="card">
+        <h2>Trajectory: rank delta + long-run trend</h2>
+        <div class="muted">
+          Rank delta uses <code>gold_country_indicator_year.parquet</code> ({{ rank_base_year }}→{{ year_top }}).
+          CAGR uses <code>gold_structural_metrics.parquet</code>.
+        </div>
+
+        <div class="twoCol" style="margin-top:10px;">
+          <div>
+            <div class="muted2"><b>Rank movers UP</b></div>
+            <div class="chart">
+              <img src="{{ chart_rank_up }}" alt="Rank movers up"/>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Geo</th>
+                  <th>Rank ({{ rank_base_year }}→{{ year_top }})</th>
+                  <th>Δ Rank</th>
+                  <th>Δ%</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in rank_up_rows %}
+                <tr>
+                  <td>{{ r.geo }}</td>
+                  <td>#{{ r.rank_base }} → #{{ r.rank_last }}</td>
+                  <td>+{{ r.rank_delta }}</td>
+                  <td>{{ r.pct_change }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <div>
+            <div class="muted2"><b>Rank movers DOWN</b></div>
+            <div class="chart">
+              <img src="{{ chart_rank_down }}" alt="Rank movers down"/>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Geo</th>
+                  <th>Rank ({{ rank_base_year }}→{{ year_top }})</th>
+                  <th>Δ Rank</th>
+                  <th>Δ%</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in rank_down_rows %}
+                <tr>
+                  <td>{{ r.geo }}</td>
+                  <td>#{{ r.rank_base }} → #{{ r.rank_last }}</td>
+                  <td>{{ r.rank_delta }}</td>
+                  <td>{{ r.pct_change }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="divider">
+          <h2>Structural trend (CAGR)</h2>
+          {% if not has_cagr %}
+            <div class="muted">CAGR not available for this run. Ensure your structural output contains <code>cagr</code> or <code>cagr_pct</code>.</div>
+          {% else %}
+            <div class="twoCol" style="margin-top:10px;">
+              <div>
+                <div class="muted2"><b>Top CAGR</b></div>
+                <div class="chart">
+                  <img src="{{ chart_cagr_top }}" alt="Top CAGR"/>
+                </div>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Geo</th>
+                      <th>Years</th>
+                      <th>CAGR</th>
+                      <th>Δ%</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for r in cagr_top_rows %}
+                    <tr>
+                      <td>{{ r.geo }}</td>
+                      <td>{{ r.year_first }}→{{ r.year_last }}</td>
+                      <td>{{ r.cagr }}</td>
+                      <td>{{ r.pct_change }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+
+              <div>
+                <div class="muted2"><b>Bottom CAGR</b></div>
+                <div class="chart">
+                  <img src="{{ chart_cagr_bottom }}" alt="Bottom CAGR"/>
+                </div>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Geo</th>
+                      <th>Years</th>
+                      <th>CAGR</th>
+                      <th>Δ%</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for r in cagr_bottom_rows %}
+                    <tr>
+                      <td>{{ r.geo }}</td>
+                      <td>{{ r.year_first }}→{{ r.year_last }}</td>
+                      <td>{{ r.cagr }}</td>
+                      <td>{{ r.pct_change }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <ul class="bullet">
+              <li><b>Rank delta</b> answers: “who is gaining/losing position over time?”.</li>
+              <li><b>CAGR</b> answers: “who has the strongest long-run trajectory?”.</li>
+              <li>Together, they reduce “random chart spam” and give a coherent narrative.</li>
+            </ul>
+          {% endif %}
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="muted" style="margin-top:14px;">
+      Data source: Eurostat • Output: local Parquet (Gold) • Generated via template + pipeline logic.
+    </div>
+
+  </div>
+</body>
+</html>
